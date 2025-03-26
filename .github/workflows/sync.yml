@@ -15,28 +15,34 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Image
-        run: docker build -f build/Dockerfile -t ponces/treble .
+        run: |
+          docker build . --file build/Dockerfile \
+                         --target treblesync \
+                         --tag ponces/treblesync
 
       - name: Sync with TrebleDroid
         run: |
+          mkdir ${{ github.workspace }}/output
           docker run --rm \
-                     --name td \
-                     --volume ${{ github.workspace }}/patches:/aosp/treble_aosp/patches \
-                     ponces/treble treblesync
-          cp -r patches/trebledroid patches/patches
-          cd patches
-          zip -rq patches-for-developers.zip patches
+                     --name treblesync \
+                     --user $(id -u):$(id -g) \
+                     --env OUTPUT_DIR=/output \
+                     --volume ${{ github.workspace }}/output:/output \
+                     ponces/treblesync
+          unzip ${{ github.workspace }}/output/patches.zip -d ${{ github.workspace }}/output
+          rm -rf ${{ github.workspace }}/patches/trebledroid
+          cp -r ${{ github.workspace }}/output/patches ${{ github.workspace }}/patches/trebledroid
 
       - name: Commit Patches
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add patches/trebledroid
+          git add ${{ github.workspace }}/patches/trebledroid
           git commit -m "feat(patches): sync with latest sources of TrebleDroid"
-          git push
+          git push -u origin
 
       - name: Upload Patches
         uses: actions/upload-artifact@v4
         with:
           name: patches-for-developers
-          path: patches/patches-for-developers.zip
+          path: ${{ github.workspace }}/output/patches

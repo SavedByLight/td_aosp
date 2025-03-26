@@ -10,19 +10,20 @@ echo
 
 set -e
 
-BL=$PWD/treble_aosp
-BD=$HOME/builds
-BV=$1
+export BUILD_NUMBER="$(date +%y%m%d)"
+
+[ -z "$OUTPUT_DIR" ] && OUTPUT_DIR="$PWD/output"
+[ -z "$BUILD_ROOT" ] && BUILD_ROOT="$PWD/treble_aosp"
 
 initRepos() {
     echo "--> Initializing workspace"
-    repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r10 --git-lfs
+    repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r23 --git-lfs
     echo
 
     echo "--> Preparing local manifest"
     mkdir -p .repo/local_manifests
-    cp $BL/build/default.xml .repo/local_manifests/default.xml
-    cp $BL/build/remove.xml .repo/local_manifests/remove.xml
+    cp $BUILD_ROOT/build/default.xml .repo/local_manifests/default.xml
+    cp $BUILD_ROOT/build/remove.xml .repo/local_manifests/remove.xml
     echo
 }
 
@@ -34,16 +35,16 @@ syncRepos() {
 
 applyPatches() {
     echo "--> Applying TrebleDroid patches"
-    bash $BL/patch.sh $BL trebledroid
+    bash $BUILD_ROOT/patch.sh $BUILD_ROOT trebledroid
     echo
 
     echo "--> Applying personal patches"
-    bash $BL/patch.sh $BL personal
+    bash $BUILD_ROOT/patch.sh $BUILD_ROOT personal
     echo
 
     echo "--> Generating makefiles"
     cd device/phh/treble
-    cp $BL/build/aosp.mk .
+    cp $BUILD_ROOT/build/aosp.mk .
     bash generate.sh aosp
     cd ../../..
     echo
@@ -51,8 +52,9 @@ applyPatches() {
 
 setupEnv() {
     echo "--> Setting up build environment"
-    source build/envsetup.sh &>/dev/null
-    mkdir -p $BD
+    mkdir -p $OUTPUT_DIR
+    source build/envsetup.sh
+    source build/core/build_id.mk
     echo
 }
 
@@ -67,21 +69,21 @@ buildTrebleApp() {
 
 buildVariant() {
     echo "--> Building $1"
-    lunch "$1"-ap4a-userdebug
+    lunch "$1"-bp1a-userdebug
     make -j$(nproc --ignore=2) installclean
     make -j$(nproc --ignore=2) systemimage
     make -j$(nproc --ignore=2) target-files-package otatools
-    bash $BL/sign.sh "vendor/ponces-priv/keys" $OUT/signed-target_files.zip
+    bash $BUILD_ROOT/sign.sh "vendor/ponces-priv/keys" $OUT/signed-target_files.zip
     unzip -joq $OUT/signed-target_files.zip IMAGES/system.img -d $OUT
-    mv $OUT/system.img $BD/system-"$1".img
+    mv $OUT/system.img $OUTPUT_DIR/system-"$1".img
     echo
 }
 
 buildVndkliteVariant() {
     echo "--> Building $1-vndklite"
     cd treble_adapter
-    sudo bash lite-adapter.sh "64" $BD/system-"$1".img
-    mv s.img $BD/system-"$1"-vndklite.img
+    sudo bash lite-adapter.sh "64" $OUTPUT_DIR/system-"$1".img
+    mv s.img $OUTPUT_DIR/system-"$1"-vndklite.img
     sudo rm -rf d tmp
     cd ..
     echo
@@ -97,14 +99,14 @@ buildVariants() {
 generatePackages() {
     echo "--> Generating packages"
     buildDate="$(date +%Y%m%d)"
-    find $BD/ -name "system-treble_*.img" | while read file; do
+    find $OUTPUT_DIR/ -name "system-treble_*.img" | while read file; do
         filename="$(basename $file)"
         [[ "$filename" == *"_bvN"* ]] && variant="vanilla" || variant="gapps"
         [[ "$filename" == *"-vndklite"* ]] && vndk="-vndklite" || vndk=""
         name="aosp-arm64-ab-${variant}${vndk}-15.0-$buildDate"
-        xz -cv "$file" -T0 > $BD/"$name".img.xz
+        xz -cv "$file" -T0 > $OUTPUT_DIR/"$name".img.xz
     done
-    rm -rf $BD/system-*.img
+    rm -rf $OUTPUT_DIR/system-*.img
     echo
 }
 
@@ -114,7 +116,7 @@ generateOta() {
     buildDate="$(date +%Y%m%d)"
     timestamp="$START"
     json="{\"version\": \"$version\",\"date\": \"$timestamp\",\"variants\": ["
-    find $BD/ -name "aosp-*-15.0-$buildDate.img.xz" | sort | {
+    find $OUTPUT_DIR/ -name "aosp-*-15.0-$buildDate.img.xz" | sort | {
         while read file; do
             filename="$(basename $file)"
             [[ "$filename" == *"-vanilla"* ]] && variant="v" || variant="g"
@@ -125,7 +127,7 @@ generateOta() {
             json="${json} {\"name\": \"$name\",\"size\": \"$size\",\"url\": \"$url\"},"
         done
         json="${json%?}]}"
-        echo "$json" | jq . > $BL/config/ota.json
+        echo "$json" | jq . > $BUILD_ROOT/config/ota.json
     }
     echo
 }
@@ -137,7 +139,7 @@ syncRepos
 applyPatches
 setupEnv
 buildTrebleApp
-[ ! -z "$BV" ] && buildVariant "$BV" || buildVariants
+[ ! -z "$BUILD_VARIANT" ] && buildVariant "$BUILD_VARIANT" || buildVariants
 generatePackages
 generateOta
 

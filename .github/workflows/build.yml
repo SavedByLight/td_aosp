@@ -8,12 +8,6 @@ on:
         default: 'treble_arm64_bgN'
         required: false
         type: string
-  # push:
-  #   branches:
-  #     - android-15.0
-  #   paths-ignore:
-  #     - '.github/**'
-  #     - 'config/**'
 
 concurrency:
   group: ${{ github.workflow }}
@@ -29,27 +23,30 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VENDOR_PONCES_PRIV_KEY }}
 
-      - name: Set Build Variant
-        run: echo "BUILD_VARIANT=${{ inputs.build_variant || 'treble_arm64_bgN' }}" >> $GITHUB_ENV
-
       - name: Build Image
-        run: docker build -f build/Dockerfile -t ponces/treble .
+        run: |
+          docker build . --file build/Dockerfile \
+                         --target treblebuild \
+                         --tag ponces/treblebuild
 
       - name: Build ROM
         run: |
-          mkdir builds
-          ssh-keyscan github.com > known_hosts
+          mkdir ${{ github.workspace }}/output
+          ssh-keyscan github.com > ${{ github.workspace }}/known_hosts
           docker run --rm \
                      --privileged \
-                     --name test \
+                     --name trebletest \
+                     --user $(id -u):$(id -g) \
+                     --env OUTPUT_DIR=/output \
+                     --env BUILD_VARIANT=${{ inputs.build_variant }} \
                      --env SSH_AUTH_SOCK=/ssh-agent \
                      --volume $SSH_AUTH_SOCK:/ssh-agent \
-                     --volume ${{ github.workspace }}/known_hosts:/root/.ssh/known_hosts \
-                     --volume ${{ github.workspace }}/builds:/root/builds \
-                     ponces/treble treblebuild ${{ env.BUILD_VARIANT }}
+                     --volume ${{ github.workspace }}/output:/output \
+                     --volume ${{ github.workspace }}/known_hosts:/home/ubuntu/.ssh/known_hosts \
+                     ponces/treblebuild
 
       - name: Upload ROM
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.BUILD_VARIANT }}
-          path: builds/*.xz
+          name: ${{ inputs.build_variant }}
+          path: ${{ github.workspace }}/output/*.xz

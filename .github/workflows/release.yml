@@ -26,32 +26,37 @@ jobs:
         run: echo "RELEASE_TITLE=$(date +'v%Y.%m.%d')" >> $GITHUB_ENV
 
       - name: Build Image
-        run: docker build -f build/Dockerfile -t ponces/treble .
+        run: |
+          docker build . --file build/Dockerfile \
+                         --target treblebuild \
+                         --tag ponces/treblebuild
 
       - name: Build ROM
         run: |
-          mkdir builds
-          ssh-keyscan github.com > known_hosts
+          mkdir ${{ github.workspace }}/output
+          ssh-keyscan github.com > ${{ github.workspace }}/known_hosts
           docker run --rm \
                      --privileged \
-                     --name treble \
+                     --name treblebuild \
+                     --user $(id -u):$(id -g) \
+                     --env OUTPUT_DIR=/output \
                      --env SSH_AUTH_SOCK=/ssh-agent \
                      --volume $SSH_AUTH_SOCK:/ssh-agent \
-                     --volume ${{ github.workspace }}/known_hosts:/root/.ssh/known_hosts \
-                     --volume ${{ github.workspace }}/builds:/root/builds \
-                     --volume ${{ github.workspace }}/config/ota.json:/aosp/treble_aosp/config/ota.json \
-                     ponces/treble treblebuild
+                     --volume ${{ github.workspace }}/output:/output \
+                     --volume ${{ github.workspace }}/config/ota.json:/work/treble_aosp/config/ota.json \
+                     --volume ${{ github.workspace }}/known_hosts:/home/ubuntu/.ssh/known_hosts \
+                     ponces/treblebuild
 
       - name: Upload OTA
         uses: actions/upload-artifact@v4
         with:
           name: ota
-          path: config/ota.json
+          path: ${{ github.workspace }}/config/ota.json
 
       - name: Upload ROM
         uses: softprops/action-gh-release@v1
         with:
-          files: builds/*.xz
+          files: ${{ github.workspace }}/output/*.xz
           title: ${{ env.RELEASE_TITLE }}
           tag_name: ${{ env.RELEASE_TITLE }}
           body: "## Changelog\n- ...\n\n## Notes\n- ..."
