@@ -22,7 +22,7 @@ jobs:
 
       - name: Sync with TrebleDroid
         run: |
-          install -m 0777 -d ${{ github.workspace }}/output
+          mkdir -m 0777 -p ${{ github.workspace }}/output
           docker run --rm \
                      --name treblesync \
                      --user $(id -u):$(id -g) \

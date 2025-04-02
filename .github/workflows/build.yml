@@ -31,7 +31,7 @@ jobs:
 
       - name: Build ROM
         run: |
-          install -m 0777 -d ${{ github.workspace }}/output
+          mkdir -m 0777 -p ${{ github.workspace }}/output
           ssh-keyscan github.com > ${{ github.workspace }}/known_hosts
           docker run --rm \
                      --privileged \
