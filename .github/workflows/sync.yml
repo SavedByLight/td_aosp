@@ -5,33 +5,44 @@ on:
   schedule:
     - cron: '0 0 * * 0'
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   sync:
     runs-on: self-hosted
     permissions:
       contents: write
     steps:
+      - name: Cleanup
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+
+      - name: Setup Environment
+        run: |
+          git lfs install
+          git config --global user.name "Alberto Ponces"
+          git config --global user.email "ponces26@gmail.com"
+          mkdir -p ${{ github.workspace }}/aosp
+
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Build Image
-        run: |
-          docker build . --file build/Dockerfile \
-                         --target treblesync \
-                         --tag ponces/treblesync
+        with:
+          path: ./aosp/treble_aosp
 
       - name: Sync with TrebleDroid
         run: |
-          mkdir -m 0777 -p ${{ github.workspace }}/output
-          docker run --rm \
-                     --name treblesync \
-                     --user $(id -u):$(id -g) \
-                     --env OUTPUT_DIR=/output \
-                     --volume ${{ github.workspace }}/output:/output \
-                     ponces/treblesync
+          ./treble_aosp/sync.sh
           unzip ${{ github.workspace }}/output/patches.zip -d ${{ github.workspace }}/output
           rm -rf ${{ github.workspace }}/patches/trebledroid
           cp -r ${{ github.workspace }}/output/patches ${{ github.workspace }}/patches/trebledroid
+        env:
+          OUTPUT_DIR: ${{ github.workspace }}/output
+        working-directory: ${{ github.workspace }}/aosp
 
       - name: Commit Patches
         run: |

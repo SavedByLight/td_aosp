@@ -17,33 +17,30 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
+      - name: Cleanup
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+
+      - name: Setup Environment
+        run: |
+          git lfs install
+          git config --global user.name "Alberto Ponces"
+          git config --global user.email "ponces26@gmail.com"
+          mkdir -p ${{ github.workspace }}/aosp
+
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.VENDOR_PONCES_PRIV_KEY }}
-
-      - name: Build Image
-        run: |
-          docker build . --file build/Dockerfile \
-                         --target treblebuild \
-                         --tag ponces/treblebuild
+          path: ./aosp/treble_aosp
 
       - name: Build ROM
-        run: |
-          mkdir -m 0777 -p ${{ github.workspace }}/output
-          ssh-keyscan github.com > ${{ github.workspace }}/known_hosts
-          docker run --rm \
-                     --privileged \
-                     --name trebletest \
-                     --user $(id -u):$(id -g) \
-                     --env OUTPUT_DIR=/output \
-                     --env BUILD_VARIANT=${{ inputs.build_variant }} \
-                     --env SSH_AUTH_SOCK=/ssh-agent \
-                     --volume $SSH_AUTH_SOCK:/ssh-agent \
-                     --volume ${{ github.workspace }}/output:/output \
-                     --volume ${{ github.workspace }}/known_hosts:/home/ubuntu/.ssh/known_hosts \
-                     ponces/treblebuild
+        run: ./treble_aosp/build.sh
+        env:
+          OUTPUT_DIR: ${{ github.workspace }}/output
+        working-directory: ${{ github.workspace }}/aosp
 
       - name: Upload ROM
         uses: actions/upload-artifact@v4
