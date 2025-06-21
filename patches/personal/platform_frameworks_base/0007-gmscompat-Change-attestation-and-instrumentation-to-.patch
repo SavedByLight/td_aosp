@@ -111,8 +111,8 @@ index 000000000000..284eb691b67c
 +        setPropValue("MANUFACTURER", "Google");
 +        setPropValue("BRAND", "google");
 +        setPropValue("MODEL", "Pixel 9a");
-+        setPropValue("FINGERPRINT", "google/tegu_beta/tegu:16/BP22.250325.007/13352765:user/release-keys");
-+        setPropValue("VERSION.SECURITY_PATCH", "2025-04-05");
++        setPropValue("FINGERPRINT", "google/tegu_beta/tegu:16/BP31.250502.008.A1/13572937:user/release-keys");
++        setPropValue("VERSION.SECURITY_PATCH", "2025-05-05");
 +        setPropValue("VERSION.DEVICE_INITIAL_SDK_INT", "32");
 +    }
 +
