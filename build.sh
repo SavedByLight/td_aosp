@@ -2,7 +2,7 @@
 
 echo
 echo "--------------------------------------"
-echo "          AOSP 15.0 Buildbot          "
+echo "          AOSP 16.0 Buildbot          "
 echo "                  by                  "
 echo "                ponces                "
 echo "--------------------------------------"
@@ -17,7 +17,7 @@ export BUILD_NUMBER="$(date +%y%m%d)"
 
 initRepos() {
     echo "--> Initializing workspace"
-    repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r32 --git-lfs
+    repo init -u https://android.googlesource.com/platform/manifest -b android-16.0.0_r2 --git-lfs
     echo
 
     echo "--> Preparing local manifest"
@@ -69,7 +69,7 @@ buildTrebleApp() {
 
 buildVariant() {
     echo "--> Building $1"
-    lunch "$1"-bp1a-userdebug
+    lunch "$1"-bp2a-userdebug
     make -j$(nproc --ignore=2) installclean
     make -j$(nproc --ignore=2) systemimage
     make -j$(nproc --ignore=2) target-files-package otatools
@@ -90,7 +90,7 @@ generatePackages() {
     find $OUTPUT_DIR/ -name "system-treble_*.img" | while read file; do
         filename="$(basename $file)"
         [[ "$filename" == *"_bvN"* ]] && variant="vanilla" || variant="gapps"
-        name="aosp-arm64-ab-${variant}-15.0-$buildDate"
+        name="aosp-arm64-ab-${variant}-16.0-$buildDate"
         xz -cv "$file" -T0 > $OUTPUT_DIR/"$name".img.xz
     done
     rm -rf $OUTPUT_DIR/system-*.img
@@ -103,7 +103,7 @@ generateOta() {
     buildDate="$(date +%Y%m%d)"
     timestamp="$START"
     json="{\"version\": \"$version\",\"date\": \"$timestamp\",\"variants\": ["
-    find $OUTPUT_DIR/ -name "aosp-*-15.0-$buildDate.img.xz" | sort | {
+    find $OUTPUT_DIR/ -name "aosp-*-16.0-$buildDate.img.xz" | sort | {
         while read file; do
             filename="$(basename $file)"
             [[ "$filename" == *"-vanilla"* ]] && variant="v" || variant="g"
