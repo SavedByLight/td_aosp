@@ -30,8 +30,8 @@ jobs:
           echo "${{ secrets.VENDOR_PONCES_HOST_KEY }}" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
           git lfs install
-          git config --global user.name "Alberto Ponces"
-          git config --global user.email "ponces26@gmail.com"
+          git config --global user.name "arthur"
+          git config --global user.email "arthurpatrocinio789@gmail.com"
           mkdir -p ${{ github.workspace }}/aosp
 
       - name: Checkout
