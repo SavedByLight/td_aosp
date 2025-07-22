@@ -14,6 +14,7 @@ export BUILD_NUMBER="$(date +%y%m%d)"
 
 [ -z "$OUTPUT_DIR" ] && OUTPUT_DIR="$PWD/output"
 [ -z "$BUILD_ROOT" ] && BUILD_ROOT="$PWD/treble_aosp"
+[ -z "$BUILD_VARIANT" ] && BUILD_VARIANT="$1"
 
 initRepos() {
     echo "--> Initializing workspace"

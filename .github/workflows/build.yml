@@ -48,6 +48,7 @@ jobs:
         run: ./treble_aosp/build.sh
         env:
           OUTPUT_DIR: ${{ github.workspace }}/output
+          BUILD_VARIANT: ${{ inputs.build_variant }}
         working-directory: ${{ github.workspace }}/aosp
 
       - name: Upload ROM
