@@ -1,4 +1,4 @@
-From 594664d2206feb6cd82e32b6c689bf7d3581eb9e Mon Sep 17 00:00:00 2001
+From e91651b450454f9481000b12777b6486b7cfe6b1 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Mon, 21 Dec 2020 20:19:11 +0100
 Subject: [PATCH 13/24] Make camera IDs filter-out optional

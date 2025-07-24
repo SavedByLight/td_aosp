@@ -1,4 +1,4 @@
-From 4de0edc9a5a68c4529677c56e3b618d3e208819a Mon Sep 17 00:00:00 2001
+From 3b80cbcc20f38b36c1033584176dc35f65a11161 Mon Sep 17 00:00:00 2001
 From: Pierre-Hugues Husson <phh@phh.me>
 Date: Fri, 29 Nov 2024 20:11:52 -0500
 Subject: [PATCH 24/24] Tell Unihertz/Agold we are not a GSI. Fixes aux cam on
