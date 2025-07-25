@@ -43,6 +43,10 @@ applyPatches() {
     bash $BUILD_ROOT/patch.sh $BUILD_ROOT personal
     echo
 
+    echo "--> Applying staging patches"
+    bash $BUILD_ROOT/patch.sh $BUILD_ROOT staging
+    echo
+
     echo "--> Generating makefiles"
     cd device/phh/treble
     cp $BUILD_ROOT/build/aosp.mk .
