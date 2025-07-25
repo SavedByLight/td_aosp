@@ -6,7 +6,7 @@
 
   <project path="device/phh/treble" name="TrebleDroid/device_phh_treble" remote="github" revision="android-16.0" />
 
-  <project path="packages/apps/ParanoidSense" name="ponces/android_packages_apps_ParanoidSense" remote="github" revision="biotite" />
+  <project path="packages/apps/ParanoidSense" name="ponces/android_packages_apps_ParanoidSense" remote="github" revision="beryl" />
   <project path="packages/apps/QcRilAm" name="AndyCGYan/android_packages_apps_QcRilAm" remote="github" revision="master" />
   <project path="packages/services/OmniJaws" name="crdroidandroid/android_packages_services_OmniJaws" remote="github" revision="15.0" />
 
