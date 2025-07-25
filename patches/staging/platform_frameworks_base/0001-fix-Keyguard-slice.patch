@@ -1,7 +1,7 @@
-From 4ba534d7e8b49671b6cb733476c6b1e1a2d3568b Mon Sep 17 00:00:00 2001
+From 098d1c45d872d29af7bae70617d008310e09acb9 Mon Sep 17 00:00:00 2001
 From: Fred Underwood <underwoodfred@proton.me>
 Date: Sat, 5 Jul 2025 07:30:30 +1000
-Subject: [PATCH 1/2] fix Keyguard slice
+Subject: [PATCH 1/4] fix Keyguard slice
 
 Upstream refactor in commit 1f73b12d5dd4db6ebcad5d444c79ac18cc59e3c3
 removed too much and as a result the legacy Keyguard slice code was

@@ -1,7 +1,7 @@
-From 5401446f86bc6092a54ec577f24f6e9961646962 Mon Sep 17 00:00:00 2001
+From c218669ec0c4b99801a0dcbaa9a8368664f6a356 Mon Sep 17 00:00:00 2001
 From: Dmitrii <bankersenator@gmail.com>
 Date: Mon, 30 Jun 2025 07:11:14 +0000
-Subject: [PATCH 2/2] SystemUI: fix squeeze effect crash
+Subject: [PATCH 2/4] SystemUI: fix squeeze effect crash
 
 06-30 12:13:32.934 15362 15362 E AndroidRuntime: java.lang.RuntimeException: java.lang.reflect.InvocationTargetException
 06-30 12:13:32.934 15362 15362 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:608)
