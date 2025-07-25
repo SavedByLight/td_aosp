@@ -1,7 +1,7 @@
-From d140d94c9f4f162adac94974d8d35854334a01cd Mon Sep 17 00:00:00 2001
+From b8a9952b1013480bdd5294661f98a769af118a4a Mon Sep 17 00:00:00 2001
 From: Alberto Ponces <ponces26@gmail.com>
 Date: Wed, 2 Jul 2025 16:24:36 +0100
-Subject: [PATCH 4/5] base: Initial SenseProvider for FaceSense service
+Subject: [PATCH 4/7] base: Initial SenseProvider for FaceSense service
 
 Squashed commit of the following:
 
@@ -219,7 +219,7 @@ index 3242149eed92..e79d4d88a0a6 100644
          pw.println("  bouncerShowing: $bouncerShowing")
          pw.println("  altBouncerShowing:" +
 diff --git a/services/core/Android.bp b/services/core/Android.bp
-index 8a983f9e071d..2784ca242975 100644
+index 3a5714bf699e..308cfc761eaf 100644
 --- a/services/core/Android.bp
 +++ b/services/core/Android.bp
 @@ -264,6 +264,7 @@ java_library_static {
@@ -231,10 +231,10 @@ index 8a983f9e071d..2784ca242975 100644
          "vendor.mediatek.hardware.mtkpower-V1.1-java",
          "vendor.samsung.hardware.sysinput-V1.2-java",
 diff --git a/services/core/java/com/android/server/biometrics/AuthService.java b/services/core/java/com/android/server/biometrics/AuthService.java
-index b6768c9c087a..b920d3093269 100644
+index e5e786c67813..ace05e9dee81 100644
 --- a/services/core/java/com/android/server/biometrics/AuthService.java
 +++ b/services/core/java/com/android/server/biometrics/AuthService.java
-@@ -71,6 +71,7 @@ import com.android.internal.R;
+@@ -72,6 +72,7 @@ import com.android.internal.R;
  import com.android.internal.annotations.VisibleForTesting;
  import com.android.internal.util.ArrayUtils;
  import com.android.server.SystemService;
@@ -242,7 +242,7 @@ index b6768c9c087a..b920d3093269 100644
  import com.android.server.biometrics.sensors.face.FaceService;
  import com.android.server.biometrics.sensors.fingerprint.FingerprintService;
  import com.android.server.companion.virtual.VirtualDeviceManagerInternal;
-@@ -838,7 +839,8 @@ public class AuthService extends SystemService {
+@@ -1045,7 +1046,8 @@ public class AuthService extends SystemService {
              final String[] hidlConfigStrings, final Context context,
              final IFaceService faceService, final BiometricHandlerProvider handlerProvider) {
          if ((hidlConfigStrings == null || hidlConfigStrings.length == 0)
